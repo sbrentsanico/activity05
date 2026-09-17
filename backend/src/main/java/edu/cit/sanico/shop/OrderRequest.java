@@ -1,3 +1,7 @@
 package edu.cit.sanico.shop;
 
-public record OrderRequest(String productId, int quantity) {}
+import java.util.List;
+
+public record OrderRequest(List<LineItemRequest> items) {
+    public record LineItemRequest(String productId, int quantity) {}
+}

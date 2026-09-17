@@ -19,7 +19,13 @@ public class InventoryItem {
     @Column(name = "stock", nullable = false)
     private int stock;
 
-    protected InventoryItem() {}
+    public InventoryItem() {}
+
+    public InventoryItem(String productId, String name, int stock) {
+        this.productId = productId;
+        this.name = name;
+        this.stock = stock;
+    }
 
     public String getProductId() { return productId; }
     public void setProductId(String productId) { this.productId = productId; }

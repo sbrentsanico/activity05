@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -15,12 +17,6 @@ public class Order {
     @Column(name = "order_id")
     private UUID orderId;
 
-    @Column(name = "product_id", nullable = false)
-    private String productId;
-
-    @Column(name = "quantity", nullable = false)
-    private int quantity;
-
     @Column(name = "status", nullable = false)
     private String status;
 
@@ -31,15 +27,12 @@ public class Order {
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
-    protected Order() {}
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
+
+    public Order() {}
 
     public UUID getOrderId() { return orderId; }
-
-    public String getProductId() { return productId; }
-    public void setProductId(String productId) { this.productId = productId; }
-
-    public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
@@ -48,4 +41,12 @@ public class Order {
     public void setReason(String reason) { this.reason = reason; }
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
+
+    public List<OrderItem> getItems() { return items; }
+    public void setItems(List<OrderItem> items) { this.items = items; }
+
+    public void addItem(OrderItem item) {
+        items.add(item);
+        item.setOrder(this);
+    }
 }
