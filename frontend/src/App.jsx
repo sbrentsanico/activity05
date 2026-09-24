@@ -165,7 +165,7 @@ export default function App() {
           <span className="badge-tech">Java 21 · Spring Boot 3.3 · PostgreSQL</span>
         </div>
         <button className="btn-secondary btn-sm" onClick={fetchData}>
-          🔄 Refresh
+          🗘 Refresh
         </button>
       </header>
 
