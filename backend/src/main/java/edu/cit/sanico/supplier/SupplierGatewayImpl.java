@@ -67,8 +67,8 @@ class SupplierGatewayImpl implements SupplierGateway {
 
     @Override
     public SupplierOrderResult trackOrderToDelivery(String supplierOrderId) {
-        int maxPolls = 30;
-        long politeDelayMs = 3000; // 3.0s polite delay ensures zero rate limiting
+        int maxPolls = 200;
+        long politeDelayMs = 3000; // 3.0s delay → 200*3=600s=10min max wait
 
         SupplierOrderResult currentResult;
         try {

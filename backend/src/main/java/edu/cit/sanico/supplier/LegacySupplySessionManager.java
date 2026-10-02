@@ -34,7 +34,14 @@ class LegacySupplySessionManager {
     }
 
     synchronized boolean hasValidSession() {
-        return sessionToken != null && !sessionToken.isBlank();
+        if (sessionToken == null || sessionToken.isBlank()) return false;
+        // Proactively re-authenticate if session is older than 45 seconds
+        if (issuedAt != null && Duration.between(issuedAt, Instant.now()).toSeconds() > 45) {
+            log.info("[LegacySupply] Session token expired proactively (age > 45s)");
+            sessionToken = null;
+            return false;
+        }
+        return true;
     }
 
     private Instant parseInstant(String ts) {

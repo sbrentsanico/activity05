@@ -1,5 +1,6 @@
 package edu.cit.sanico.inventory;
 
+import edu.cit.sanico.channel.BackorderTracker;
 import edu.cit.sanico.inventory.event.LowStockEvent;
 import edu.cit.sanico.supplier.SupplierGateway;
 import edu.cit.sanico.supplier.SupplierOrderResult;
@@ -18,13 +19,17 @@ class AutoReorderListenerTest {
 
     private SupplierGateway mockGateway;
     private InventoryService mockInventoryService;
+    private BackorderTracker backorderTracker;
+    private edu.cit.sanico.channel.TianggeChannelService mockTianggeChannelService;
     private AutoReorderListener listener;
 
     @BeforeEach
     void setUp() {
         mockGateway = mock(SupplierGateway.class);
         mockInventoryService = mock(InventoryService.class);
-        listener = new AutoReorderListener(mockGateway, mockInventoryService);
+        backorderTracker = new BackorderTracker();
+        mockTianggeChannelService = mock(edu.cit.sanico.channel.TianggeChannelService.class);
+        listener = new AutoReorderListener(mockGateway, mockInventoryService, backorderTracker, mockTianggeChannelService);
     }
 
     @Test

@@ -22,6 +22,7 @@ class LegacySupplyClient implements LegacySupplyApi {
     private final String clientId;
     private final String apiKey;
     private final LegacySupplySessionManager sessionManager;
+    private final edu.cit.sanico.channel.InstanceIdHolder instanceIdHolder;
     private final HttpClient httpClient;
     private final XmlMapper xmlMapper;
 
@@ -29,12 +30,14 @@ class LegacySupplyClient implements LegacySupplyApi {
         @Value("${legacysupply.base-url:https://legacysupply.onrender.com/api/v1}") String baseUrl,
         @Value("${legacysupply.client-id:}") String clientId,
         @Value("${legacysupply.api-key:}") String apiKey,
-        LegacySupplySessionManager sessionManager
+        LegacySupplySessionManager sessionManager,
+        edu.cit.sanico.channel.InstanceIdHolder instanceIdHolder
     ) {
         this.baseUrl = baseUrl.replaceAll("/+$", "");
         this.clientId = clientId;
         this.apiKey = apiKey;
         this.sessionManager = sessionManager;
+        this.instanceIdHolder = instanceIdHolder;
         this.httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(15))
             .build();
@@ -61,6 +64,7 @@ class LegacySupplyClient implements LegacySupplyApi {
                 .uri(URI.create(baseUrl + "/auth/token"))
                 .header("Content-Type", "application/xml; charset=utf-8")
                 .header("Accept", "application/xml")
+                .header("X-Client-Instance", instanceIdHolder.getInstanceId())
                 .timeout(Duration.ofSeconds(20))
                 .POST(HttpRequest.BodyPublishers.ofString(xmlBody))
                 .build();
@@ -89,6 +93,7 @@ class LegacySupplyClient implements LegacySupplyApi {
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + "/catalog"))
                 .header("X-LS-Session", token)
+                .header("X-Client-Instance", instanceIdHolder.getInstanceId())
                 .header("Accept", "application/xml")
                 .timeout(Duration.ofSeconds(20))
                 .GET()
@@ -115,6 +120,7 @@ class LegacySupplyClient implements LegacySupplyApi {
                 .header("Content-Type", "application/xml; charset=utf-8")
                 .header("Accept", "application/xml")
                 .header("X-LS-Session", token)
+                .header("X-Client-Instance", instanceIdHolder.getInstanceId())
                 .timeout(Duration.ofSeconds(25))
                 .POST(HttpRequest.BodyPublishers.ofString(xmlBody));
 
@@ -139,6 +145,7 @@ class LegacySupplyClient implements LegacySupplyApi {
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + "/purchase-orders/" + poNumber))
                 .header("X-LS-Session", token)
+                .header("X-Client-Instance", instanceIdHolder.getInstanceId())
                 .header("Accept", "application/xml")
                 .timeout(Duration.ofSeconds(20))
                 .GET()

@@ -11,7 +11,8 @@ class LiveLegacySupplyTest {
         String baseUrl = "https://legacysupply.onrender.com/api/v1";
 
         LegacySupplySessionManager sessionManager = new LegacySupplySessionManager();
-        LegacySupplyClient client = new LegacySupplyClient(baseUrl, clientId, apiKey, sessionManager);
+        edu.cit.sanico.channel.InstanceIdHolder instanceIdHolder = new edu.cit.sanico.channel.InstanceIdHolder();
+        LegacySupplyClient client = new LegacySupplyClient(baseUrl, clientId, apiKey, sessionManager, instanceIdHolder);
         LegacySupplyTranslator translator = new LegacySupplyTranslator();
         SupplierGateway gateway = new SupplierGatewayImpl(client, translator);
 

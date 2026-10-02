@@ -46,6 +46,12 @@ class InventoryServiceImpl implements InventoryService {
         item.setStock(item.getStock() - quantity);
         inventoryRepository.save(item);
 
+        eventPublisher.publishEvent(new edu.cit.sanico.inventory.event.InventoryUpdatedEvent(
+                item.getProductId(),
+                item.getName(),
+                item.getStock()
+        ));
+
         if (item.getStock() < lowStockThreshold) {
             eventPublisher.publishEvent(new LowStockEvent(
                     item.getProductId(),
@@ -65,6 +71,12 @@ class InventoryServiceImpl implements InventoryService {
                 .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
         item.setStock(item.getStock() + quantity);
         inventoryRepository.save(item);
+
+        eventPublisher.publishEvent(new edu.cit.sanico.inventory.event.InventoryUpdatedEvent(
+                item.getProductId(),
+                item.getName(),
+                item.getStock()
+        ));
     }
 
     @Override

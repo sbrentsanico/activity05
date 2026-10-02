@@ -40,6 +40,20 @@ CREATE TABLE notifications (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- 5. Feed Cursor table (Task 4 feed position persistence)
+CREATE TABLE feed_cursor (
+    feed_id     VARCHAR(50) PRIMARY KEY,
+    last_cursor VARCHAR(100) NOT NULL
+);
+
+-- 6. Processed Tiangge Orders table (Task 4 deduplication)
+CREATE TABLE processed_tiangge_orders (
+    tiangge_order_id VARCHAR(100) PRIMARY KEY,
+    local_order_id   UUID,
+    decision         VARCHAR(20)  NOT NULL,
+    processed_at     TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
 -- 5. Seed data (idempotent)
 INSERT INTO inventory (product_id, name, stock) VALUES
     ('P100', 'Wireless Mouse',      25),

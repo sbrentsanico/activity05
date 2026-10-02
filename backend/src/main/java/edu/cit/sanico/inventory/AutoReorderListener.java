@@ -20,11 +20,20 @@ class AutoReorderListener {
 
     private final SupplierGateway supplierGateway;
     private final InventoryService inventoryService;
+    private final edu.cit.sanico.channel.BackorderTracker backorderTracker;
+    private final edu.cit.sanico.channel.TianggeChannelService tianggeChannelService;
     private final Set<String> activeReorders = ConcurrentHashMap.newKeySet();
 
-    AutoReorderListener(SupplierGateway supplierGateway, InventoryService inventoryService) {
+    AutoReorderListener(
+            SupplierGateway supplierGateway,
+            InventoryService inventoryService,
+            edu.cit.sanico.channel.BackorderTracker backorderTracker,
+            edu.cit.sanico.channel.TianggeChannelService tianggeChannelService
+    ) {
         this.supplierGateway = supplierGateway;
         this.inventoryService = inventoryService;
+        this.backorderTracker = backorderTracker;
+        this.tianggeChannelService = tianggeChannelService;
     }
 
     @EventListener
@@ -44,6 +53,7 @@ class AutoReorderListener {
                 productId, event.remainingStock(), event.threshold(), unitsNeeded);
 
             SupplierOrderResult orderResult = supplierGateway.placeReorder(productId, unitsNeeded, buyerRef);
+            backorderTracker.markReorderInFlight(productId);
             log.info("[AutoReorder] Supplier order {} confirmed. Status: {}, Ordered units: {}",
                 orderResult.supplierOrderId(), orderResult.status(), orderResult.unitsOrdered());
 
@@ -61,6 +71,16 @@ class AutoReorderListener {
             log.error("[AutoReorder] Error processing auto-reorder for product {}: {}", productId, e.getMessage(), e);
         } finally {
             activeReorders.remove(productId);
+            backorderTracker.clearReorderInFlight(productId);
+
+            try {
+                var currentItem = inventoryService.getItem(productId);
+                if (currentItem.getStock() < 5) {
+                    log.info("[AutoReorder] Stock for {} is still low ({}) after restock/backorder drain. Triggering follow-up reorder...",
+                            productId, currentItem.getStock());
+                    onLowStock(new LowStockEvent(productId, currentItem.getName(), currentItem.getStock(), 5));
+                }
+            } catch (Exception ignored) {}
         }
     }
 }
